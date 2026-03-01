@@ -7,7 +7,7 @@ import ReportView from "./components/ReportView";
 import Footer from "./components/Footer";
 import "./App.css";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const API_BASE = process.env.REACT_APP_API_URL || "";
 
 function App() {
   const [step, setStep] = useState("upload"); // upload | detecting | results

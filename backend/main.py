@@ -5,15 +5,17 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import UPLOAD_DIR, MAX_FILE_SIZE_MB
 from backend.detector import detect_damage
 from backend.report_generator import generate_report
 from backend.pdf_generator import generate_pdf
+
+FRONTEND_BUILD = Path(__file__).resolve().parent.parent / "frontend" / "build"
 
 app = FastAPI(
     title="AI Field Inspector",
@@ -165,3 +167,14 @@ async def download_pdf(filename: str):
         media_type="application/pdf",
         filename=filename,
     )
+
+
+if FRONTEND_BUILD.exists():
+    app.mount("/static", StaticFiles(directory=FRONTEND_BUILD / "static"), name="react-static")
+
+    @app.get("/{full_path:path}")
+    async def serve_react(request: Request, full_path: str):
+        file_path = FRONTEND_BUILD / full_path
+        if full_path and file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+        return HTMLResponse((FRONTEND_BUILD / "index.html").read_text())
