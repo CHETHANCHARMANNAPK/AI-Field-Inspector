@@ -12,6 +12,7 @@ function Header() {
           </div>
         </div>
       </div>
+      <div className="header-badge">CATERPILLAR TRACK</div>
     </header>
   );
 }
